@@ -15,6 +15,7 @@ const user_entity_1 = require("./entities/user.entity");
 const jwt_1 = require("@nestjs/jwt");
 const passport_1 = require("@nestjs/passport");
 const jwt_strategy_1 = require("./jwt.strategy");
+const config_1 = require("@nestjs/config");
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
@@ -23,9 +24,13 @@ exports.UserModule = UserModule = __decorate([
         imports: [
             typeorm_1.TypeOrmModule.forFeature([user_entity_1.User]),
             passport_1.PassportModule,
-            jwt_1.JwtModule.register({
-                secret: '1234',
-                signOptions: { expiresIn: '1d' },
+            jwt_1.JwtModule.registerAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: async (configService) => ({
+                    secret: configService.get('JWT_SECRET'),
+                    signOptions: { expiresIn: configService.get('JWT_EXPIRES_IN') },
+                }),
             }),
         ],
         providers: [user_service_1.UserService, jwt_strategy_1.JwtStrategy],

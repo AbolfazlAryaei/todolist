@@ -8,8 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const user_module_1 = require("./user/user.module");
+const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
+const user_module_1 = require("./user/user.module");
 const task_module_1 = require("./task/task.module");
 let AppModule = class AppModule {
 };
@@ -17,14 +18,21 @@ exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forRoot({
-                type: 'sqlite',
-                database: 'db.sqlite',
-                entities: [__dirname + '/**/*.entity.{js,ts}'],
-                synchronize: true,
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+            }),
+            typeorm_1.TypeOrmModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: (config) => ({
+                    type: 'sqlite',
+                    database: 'db.sqlite',
+                    entities: [__dirname + '/**/*.entity.{js,ts}'],
+                    synchronize: true,
+                }),
             }),
             user_module_1.UserModule,
-            task_module_1.TaskModule
+            task_module_1.TaskModule,
         ],
     })
 ], AppModule);
